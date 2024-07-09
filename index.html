@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambreen Collection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+</head>
+<style>
+    body{
+        margin-top: 40px;
+        height: 1000px;
+    }
+
+
+    
+</style>
+<body>
+    <nav class="navbar bg-body-tertiary fixed-top">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="index.html">Ambreen Collection</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+              <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                  </li>
+                <li class="nav-item dropdown">
+                  <a  class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Admin
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a  class="dropdown-item"  data-bs-toggle="modal" data-bs-target="#exampleModal" href="#">Admin</a></li>
+                    <li><a disabled class="dropdown-item" href="#">Developer</a></li>
+                  </ul>
+                </li>
+              </ul>
+              <form class="d-flex mt-3" role="search">
+               </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+<br>  
+  <!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Admin Login</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <center>
+              <label style="display: block; margin-bottom: 10px; font-size: 1.2em;">UserName</label>
+              <input id="adminUserNameInput" type="text" style="width: 80%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em;">
+              <br>
+              <label style="display: block; margin-bottom: 10px; font-size: 1.2em;">Password</label>
+              <input id="adminPasswordInput" type="password" style="width: 80%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em;">
+              <br>
+              <button id="adminFormSubmitBtn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 1em; cursor: pointer;">ENTER</button>
+            </center>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</body>    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getAuth,signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+    const date = new Date();
+  const firebaseConfig = {
+    apiKey: "AIzaSyCml__ejp5jC1QPfvRdKPKT21W0PIgomCQ",
+    authDomain: "ambreen-collection-site.firebaseapp.com",
+    projectId: "ambreen-collection-site",
+    storageBucket: "ambreen-collection-site.appspot.com",
+    messagingSenderId: "170490149415",
+    appId: "1:170490149415:web:70fb18aa003cc88cb7ec02",
+    measurementId: "G-XD75SQT90W"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+
+  document.getElementById('adminFormSubmitBtn').addEventListener("click", function(event) {
+    event.preventDefault(); // Prevents the default form submission
+    console.log("Admin Form Submit Button Pressed");
+    if(localStorage.getItem('blockedDate')==date.getDate()){
+            alert("Account Blocked,Try tommorow!")
+            window.location.href='index.html'
+    }else{
+        localStorage.removeItem('blockedDate') 
+    }
+
+   
+
+    const email = 'adminaa.' + document.getElementById('adminUserNameInput').value;
+    const password = document.getElementById('adminPasswordInput').value;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            console.log('Credentials Verified');
+            const user = userCredential.user;
+            localStorage.setItem('adminPermit', JSON.stringify(user));
+            window.location.href='admin.html'
+
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode);
+            console.log(errorMessage);
+            Swal.fire({
+                title: errorCode,
+                text: errorMessage,
+                icon: "error"
+            });
+           
+            if(localStorage.getItem('failedAttempted')){
+                var temp=localStorage.getItem('failedAttempted')
+                temp++;
+                localStorage.setItem('failedAttempted',temp)
+                if(localStorage.getItem('failedAttempted')>2){
+                    Swal.fire({
+                title: 'Blocked',
+                text: "Account Blocked try tommorow",
+                icon: "error"
+            });    
+            localStorage.removeItem('failedAttempted')
+            localStorage.setItem("blockedDate",date.getDate())
+
+                }
+            }else{
+                localStorage.setItem('failedAttempted','1')
+            }
+localStorage.setItem('failedAttempted',)
+        });
+});
+
+
+</script>
+</html>
