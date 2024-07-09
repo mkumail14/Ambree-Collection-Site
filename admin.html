@@ -3,30 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | Ambreen Collection </title>
+    <title>Admin Panel | Ambreen Collection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        /* Center the modal using Bootstrap classes */
+        #addStockModal .modal-dialog {
+            max-width: 500px;
+            margin: 30px auto;
+        }
+        .scell {
+            border-right: 2px solid black;
+            padding: 5px;
+        }
+        .datacell {
+            border-right: 2px solid black;
+            border-left: 2px solid black;
+            padding: 3px;
+            border-bottom: 1px solid black;
+        }
+    </style>
 </head>
 <body>
-    
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    if(localStorage.getItem('adminPermit')){
-    if(JSON.parse(localStorage.getItem('adminPermit')).email=='adminaa.ambreenasghar@gmail.com'){
-        console.log("Login Succesful")
-        Swal.fire({
-                title: 'Welcome Ambreen',
-                text: 'Logged in successfully',
-                icon: "success",
-                confirmButtonText: 'OK'
-            })
-        localStorage.removeItem('adminPermit')
-        
-    }else{
-        window.location.href='index.html'
-    }
-    }else{
-        window.location.href='index.html'
-    }
+    <main id="main">
+        <nav class="navbar bg-body-tertiary">
+            <div style="background-color: rgb(211, 200, 200); padding: 10px;" class="container-fluid">
+                <a class="navbar-brand">Ambreen Collection | Admin Portal</a>
+                <button class="btn btn-primary" id="addNewStock">New Stock</button>
+                <button class="btn btn-primary" id="loadStock">Load Stock</button>
+            </div>
+        </nav>
+        <br>
+        <center>
+            <div style="border:2px solid black; width: fit-content; padding: 20px;" id="addProductModal">
+                <label>Add Product</label>
+                <br>
+                <input id="itemName" type="text" placeholder="Item Name" required>
+                <br>
+                <input id="itemDescription" type="text" placeholder="Item Description" required>
+                <br>
+                <input id="retialPrice" type="number" placeholder="Retail Price" required>
+                <br>
+                <input id="salePrice" type="number" placeholder="Sale Price" required>
+                <br>
+                <input id="Quantity" type="number" placeholder="Quantity" required>
+                <br>
+                <input id="itemURL" type="url" placeholder="Item Image URL" disabled>
+                <br><br>
+                <button id="addProductBtn" class="btn btn-primary">ADD</button>
+            </div>
+            <br>
+            <div style="border:2px solid black; width: 90%; padding: 20px;" id="dataBox">
+                <h3>All Data</h3>
+                <p id="stockName"><b>Stock Name :</b></p>
+                <p id="stockId"><b>Stock ID :</b></p>
+                <table id="tableContainer"></table>
+            </div>
+        </center>
+    </main>
+    <!-- Add Stock Modal -->
+    <div class="modal fade" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStockModalLabel">Add New Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="inputStockName" class="form-label">Enter Name for Stock</label>
+                    <input type="text" class="form-control" id="inputStockName">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="enterStock">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCml__ejp5jC1QPfvRdKPKT21W0PIgomCQ",
+            authDomain: "ambreen-collection-site.firebaseapp.com",
+            projectId: "ambreen-collection-site",
+            storageBucket: "ambreen-collection-site.appspot.com",
+            messagingSenderId: "170490149415",
+            appId: "1:170490149415:web:70fb18aa003cc88cb7ec02",
+            measurementId: "G-XD75SQT90W"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const addStockBtn = document.getElementById('addNewStock');
+        addStockBtn.addEventListener('click', function() {
+            const addStockModal = new bootstrap.Modal(document.getElementById('addStockModal'));
+            addStockModal.show();
+        });
+
+        document.getElementById('enterStock').addEventListener('click', async function() {
+            const stockName = document.getElementById('inputStockName').value;
+            if (stockName) {
+                try {
+                    const docRef = await addDoc(collection(db, "stocks"), {
+                        name: stockName
+                    });
+                    Swal.fire({
+                        title: 'Success',
+                        text: 'Stock added successfully with ID ' + docRef.id,
+                        icon: 'success'
+                    });
+                    await navigator.clipboard.writeText(docRef.id);
+                    localStorage.setItem('tempStockId', docRef.id);
+                    document.getElementById('inputStockName').value = '';
+                    const addStockModal = bootstrap.Modal.getInstance(document.getElementById('addStockModal'));
+                    addStockModal.hide();
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to add stock: ' + error.message,
+                        icon: 'error'
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Please enter a stock name',
+                    icon: 'error'
+                });
+            }
+        });
+
+        document.getElementById('loadStock').addEventListener('click', async function() {
+            const stockId = localStorage.getItem('tempStockId');
+            if (stockId) {
+                try {
+                    const docRef = doc(db, "stocks", stockId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        var header=`
+                        <tr style="border: 3px black solid;">
+                        <td class="scell">Product No</td>
+                        <td class="scell">Name</td>
+                        <td class="scell">Description</td>
+                        <td class="scell">Retail Price</td>
+                        <td class="scell">Sale Price</td>
+                        <td class="scell">Quantity</td>
+                        <td class="scell">Product Left</td>
+                    </tr>`
+                    document.getElementById('tableContainer').innerHTML = header;
+                        let stockData = docSnap.data();
+                        document.getElementById('stockName').textContent = "Stock Name: " + stockData.name;
+                        document.getElementById('stockId').textContent = "Stock ID: " + stockId;
+
+                        for (var i = 1; i < 1000; i++) {
+                            if (stockData[`Product${i}`]) {
+                                var temp = stockData[`Product${i}`];
+                                var tmp = `
+                                <tr>
+                                    <td class="datacell">${i}</td>
+                                    <td class="datacell">${temp[0]}</td>
+                                    <td class="datacell">${temp[1]}</td>
+                                    <td class="datacell">${temp[2]}</td>
+                                    <td class="datacell">${temp[3]}</td>
+                                    <td class="datacell">${temp[4]}</td>
+                                    <td class="datacell">${temp[5]}</td>
+                                </tr>
+                                `;
+                                document.getElementById('tableContainer').innerHTML += tmp;
+                            } else {
+                                break;
+                            }
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No such document!',
+                            icon: 'error'
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to load stock: ' + error.message,
+                        icon: 'error'
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No stock ID found in local storage',
+                    icon: 'error'
+                });
+            }
+        });
+
+        document.getElementById('addProductBtn').addEventListener('click', async function() {
+            const itemName = document.getElementById('itemName').value;
+            const itemDescription = document.getElementById('itemDescription').value;
+            const retailPrice = document.getElementById('retialPrice').value;
+            const salePrice = document.getElementById('salePrice').value;
+            const quantity = document.getElementById('Quantity').value;
+
+            if (itemName && itemDescription && retailPrice && salePrice && quantity) {
+                const stockId = localStorage.getItem('tempStockId');
+                if (stockId) {
+                    try {
+                        const docRef = doc(db, "stocks", stockId);
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            let stockData = docSnap.data();
+                            let productId = 1;
+                            while (stockData[`Product${productId}`]) {
+                                productId++;
+                            }
+
+                            stockData[`Product${productId}`] = [
+                                itemName,
+                                itemDescription,
+                                retailPrice,
+                                salePrice,
+                                quantity,
+                                quantity
+                            ];
+
+                            await updateDoc(docRef, stockData);
+
+                            Swal.fire({
+                                title: 'Success',
+                                text: 'Product added successfully!',
+                                icon: 'success'
+                            });
+
+                            document.getElementById('itemName').value = '';
+                            document.getElementById('itemDescription').value = '';
+                            document.getElementById('retialPrice').value = '';
+                            document.getElementById('salePrice').value = '';
+                            document.getElementById('Quantity').value = '';
+
+                            document.getElementById('loadStock').click(); // Refresh the stock data
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'No such document!',
+                                icon: 'error'
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to add product: ' + error.message,
+                            icon: 'error'
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No stock ID found in local storage',
+                        icon: 'error'
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Please fill all the fields',
+                    icon: 'error'
+                });
+            }
+        });
+    </script>
 </body>
 </html>
