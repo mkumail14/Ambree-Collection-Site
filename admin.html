@@ -21,6 +21,12 @@
             padding: 3px;
             border-bottom: 1px solid black;
         }
+
+        .tableCellHidden{
+            display: none;
+        }
+
+      
     </style>
 </head>
 <body>
@@ -28,37 +34,42 @@
         <nav class="navbar bg-body-tertiary">
             <div style="background-color: rgb(211, 200, 200); padding: 10px;" class="container-fluid">
                 <a class="navbar-brand">Ambreen Collection | Admin Portal</a>
+                <div class="box">
                 <button class="btn btn-primary" id="addNewStock">New Stock</button>
+                <button class="btn btn-primary" id="setStockId">Set Stock ID</button>
                 <button class="btn btn-primary" id="loadStock">Load Stock</button>
+                </div>
             </div>
         </nav>
         <br>
         <center>
-            <div style="border:2px solid black; width: fit-content; padding: 20px;" id="addProductModal">
-                <label>Add Product</label>
-                <br>
-                <input id="itemName" type="text" placeholder="Item Name" required>
-                <br>
-                <input id="itemDescription" type="text" placeholder="Item Description" required>
-                <br>
-                <input id="retialPrice" type="number" placeholder="Retail Price" required>
-                <br>
-                <input id="salePrice" type="number" placeholder="Sale Price" required>
-                <br>
-                <input id="Quantity" type="number" placeholder="Quantity" required>
-                <br>
-                <input id="itemURL" type="url" placeholder="Item Image URL" disabled>
-                <br><br>
-                <button id="addProductBtn" class="btn btn-primary">ADD</button>
-            </div>
+        <div style="border:2px solid black; width: fit-content; padding: 20px;" id="addProductModal">
+            <label>Add Product</label>
             <br>
-            <div style="border:2px solid black; width: 90%; padding: 20px;" id="dataBox">
-                <h3>All Data</h3>
-                <p id="stockName"><b>Stock Name :</b></p>
-                <p id="stockId"><b>Stock ID :</b></p>
-                <table id="tableContainer"></table>
-            </div>
-        </center>
+            <input id="itemName" type="text" placeholder="Item Name" required>
+            <br>
+            <input id="itemDescription" type="text" placeholder="Item Description" required>
+            <br>
+            <input id="retialPrice" type="number" placeholder="Retail Price" required>
+            <br>
+            <input id="salePrice" type="number" placeholder="Sale Price" required>
+            <br>
+            <input id="Quantity" type="number" placeholder="Quantity" required>
+            <br>
+            <input id="itemURL" type="url" placeholder="Item Image URL" disabled>
+            <br><br>
+            <button id="addProductBtn" class="btn btn-primary">ADD</button>
+        </div>
+        <br>
+        <div style="border:2px solid black; width: 90%; padding: 20px;"  id="dataBox">
+            <h3>All Data</h3>
+            <p id="stockName"><b>Stock Name :</b></p>
+            <p id="stockId"><b>Stock ID :</b></p>
+            <table id="tableContainer"></table>
+            <br>
+            <button type="button" class="btn btn-primary" id="unHideBtn">Hide</button>
+        </div>
+    </center>
     </main>
     <!-- Add Stock Modal -->
     <div class="modal fade" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
@@ -80,10 +91,62 @@
         </div>
     </div>
 
+    <!-- Set Stock ID Modal -->
+    <div class="modal fade" id="setStockIdModal" tabindex="-1" aria-labelledby="setStockIdModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="setStockIdModalLabel">Add New Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="inputStockName" class="form-label">Enter valid Stock ID</label>
+                    <input type="text" class="form-control" id="inputStockId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveStockID">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input id="editItemName" type="text" placeholder="Item Name" class="form-control" required>
+                    <br>
+                    <input id="editItemDescription" type="text" placeholder="Item Description" class="form-control" required>
+                    <br>
+                    <input id="editRetailPrice" type="number" placeholder="Retail Price" class="form-control" required>
+                    <br>
+                    <input id="editSalePrice" type="number" placeholder="Sale Price" class="form-control" required>
+                    <br>
+                    <input id="editQuantity" type="number" placeholder="Quantity" class="form-control" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveEditProductBtn">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script type="module">
+        // if(!localStorage.getItem('adminPermit')){
+        // window.location.href='index.html'
+        // }else{
+        //     localStorage.removeItem('adminPermit')
+        // }
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
         import { getFirestore, collection, addDoc, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
@@ -100,12 +163,22 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        document.getElementById('dataBox').style.display='none'
 
         const addStockBtn = document.getElementById('addNewStock');
         addStockBtn.addEventListener('click', function() {
             const addStockModal = new bootstrap.Modal(document.getElementById('addStockModal'));
             addStockModal.show();
         });
+        const setStockBtn = document.getElementById('setStockId');
+        setStockId.addEventListener('click', function() {
+            const setStockModal = new bootstrap.Modal(document.getElementById('setStockIdModal'));
+            setStockModal.show();
+        });
+        document.getElementById('saveStockID').addEventListener('click',function(){
+            localStorage.setItem('tempStockId', document.getElementById('inputStockId').value);
+            document.getElementById('loadStock').click();
+        })
 
         document.getElementById('enterStock').addEventListener('click', async function() {
             const stockName = document.getElementById('inputStockName').value;
@@ -152,10 +225,11 @@
                         <td class="scell">Product No</td>
                         <td class="scell">Name</td>
                         <td class="scell">Description</td>
-                        <td class="scell">Retail Price</td>
+                        <td id='hiddenCell3' class="scell">Retail Price</td>
                         <td class="scell">Sale Price</td>
-                        <td class="scell">Quantity</td>
+                        <td id='hiddenCell4' class="scell">Quantity</td>
                         <td class="scell">Product Left</td>
+                        <td class="scell">Actions</td>
                     </tr>`
                     document.getElementById('tableContainer').innerHTML = header;
                         let stockData = docSnap.data();
@@ -170,17 +244,23 @@
                                     <td class="datacell">${i}</td>
                                     <td class="datacell">${temp[0]}</td>
                                     <td class="datacell">${temp[1]}</td>
-                                    <td class="datacell">${temp[2]}</td>
+                                    <td id='hiddenCell1' class="datacell">${temp[2]}</td>
                                     <td class="datacell">${temp[3]}</td>
-                                    <td class="datacell">${temp[4]}</td>
+                                    <td id='hiddenCell2' class="datacell">${temp[4]}</td>
                                     <td class="datacell">${temp[5]}</td>
+                                    <td class="datacell">
+                                        <button class="btn btn-sm btn-warning editProductBtn" data-product-id="${i}">Edit</button>
+                                    </td>
                                 </tr>
                                 `;
                                 document.getElementById('tableContainer').innerHTML += tmp;
                             } else {
                                 break;
                             }
+                            document.getElementById('dataBox').style.display='block'
+
                         }
+                        attachEditButtonsEvent();
                     } else {
                         Swal.fire({
                             title: 'Error',
@@ -277,6 +357,98 @@
                 });
             }
         });
+
+        function attachEditButtonsEvent() {
+            const editButtons = document.querySelectorAll('.editProductBtn');
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = button.getAttribute('data-product-id');
+                    openEditModal(productId);
+                });
+            });
+        }
+
+        async function openEditModal(productId) {
+            const stockId = localStorage.getItem('tempStockId');
+            const docRef = doc(db, "stocks", stockId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                let stockData = docSnap.data();
+                let productData = stockData[`Product${productId}`];
+
+                document.getElementById('editItemName').value = productData[0];
+                document.getElementById('editItemDescription').value = productData[1];
+                document.getElementById('editRetailPrice').value = productData[2];
+                document.getElementById('editSalePrice').value = productData[3];
+                document.getElementById('editQuantity').value = productData[4];
+
+                const editProductModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                editProductModal.show();
+
+                document.getElementById('saveEditProductBtn').onclick = async function() {
+                    await saveProductChanges(productId);
+                    editProductModal.hide();
+                };
+            }
+        }
+
+        async function saveProductChanges(productId) {
+            const stockId = localStorage.getItem('tempStockId');
+            const docRef = doc(db, "stocks", stockId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                let stockData = docSnap.data();
+
+                stockData[`Product${productId}`] = [
+                    document.getElementById('editItemName').value,
+                    document.getElementById('editItemDescription').value,
+                    document.getElementById('editRetailPrice').value,
+                    document.getElementById('editSalePrice').value,
+                    document.getElementById('editQuantity').value,
+                    document.getElementById('editQuantity').value  // Assuming Product Left is the same as Quantity after edit
+                ];
+
+                try {
+                    await updateDoc(docRef, stockData);
+                    Swal.fire({
+                        title: 'Success',
+                        text: 'Product updated successfully!',
+                        icon: 'success'
+                    });
+                    document.getElementById('loadStock').click(); // Refresh the stock data
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to update product: ' + error.message,
+                        icon: 'error'
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No such document!',
+                    icon: 'error'
+                });
+            }
+        }
+
+
+        document.getElementById('unHideBtn').addEventListener('click',function(){
+            if (document.getElementById('hiddenCell1').style.display=='none') {
+               document.getElementById('hiddenCell1').style.display='block'
+               document.getElementById('hiddenCell2').style.display='block'
+               document.getElementById('hiddenCell3').style.display='block'
+               document.getElementById('hiddenCell4').style.display='block'
+               document.getElementById('unHideBtn').innerText="Hide"
+            } else {
+                document.getElementById('hiddenCell1').style.display='none'
+               document.getElementById('hiddenCell2').style.display='none'
+               document.getElementById('hiddenCell3').style.display='none'
+               document.getElementById('hiddenCell4').style.display='none'                
+               document.getElementById('unHideBtn').innerText="unHide"
+            }
+            
+        })
     </script>
 </body>
 </html>
