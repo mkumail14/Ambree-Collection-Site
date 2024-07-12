@@ -419,8 +419,8 @@ document.getElementById('submitBill').addEventListener('click',function(){
         document.getElementById('billFooter').style.display = 'flex'
         print()
         document.getElementById('exitBillPortalBtn').style.display = 'block'
-        document.getElementById('billHeader').style.display = 'none'
-        document.getElementById('billFooter').style.display = 'none'
+        // document.getElementById('billHeader').style.display = 'none'
+        // document.getElementById('billFooter').style.display = 'none'
 
     }
 })
