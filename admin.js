@@ -1,11 +1,11 @@
-// if(localStorage.getItem('tempPermit')=='true'){
-//     localStorage.removeItem('tempPermit')
-//     document.getElementById('loadStock').click();
-// }else if(!localStorage.getItem('adminPermit')){
-// window.location.href='index.html'
-// }else{
-//     localStorage.removeItem('adminPermit')
-// }
+if(localStorage.getItem('tempPermit')=='true'){
+    localStorage.removeItem('tempPermit')
+    document.getElementById('loadStock').click();
+}else if(!localStorage.getItem('adminPermit')){
+window.location.href='index.html'
+}else{
+    localStorage.removeItem('adminPermit')
+}
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getFirestore, collection, addDoc, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
@@ -472,10 +472,12 @@ document.getElementById('submitBill').addEventListener('click', async function()
             }));
         }
     });
+    const now = new Date();
     for(let v=0;v<cartItemId.length;v++){
 
         let temparr=stockData[`C${cartItemId[v]}`]
-            temparr.push(customerName) 
+        var dataa= `${customerName}---${now}`
+            temparr.push(dataa) 
             stockData[`C${cartItemId[v]}`]=temparr
             await updateDoc(docRef, stockData);
     }
