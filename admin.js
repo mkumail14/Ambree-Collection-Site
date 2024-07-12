@@ -1,11 +1,14 @@
-// if(!localStorage.getItem('adminPermit')){
+// if(localStorage.getItem('tempPermit')=='true'){
+//     localStorage.removeItem('tempPermit')
+//     document.getElementById('loadStock').click();
+// }else if(!localStorage.getItem('adminPermit')){
 // window.location.href='index.html'
 // }else{
 //     localStorage.removeItem('adminPermit')
 // }
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getFirestore, collection, addDoc, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-
 const firebaseConfig = {
     apiKey: "AIzaSyCml__ejp5jC1QPfvRdKPKT21W0PIgomCQ",
     authDomain: "ambreen-collection-site.firebaseapp.com",
@@ -89,7 +92,7 @@ document.getElementById('loadStock').addEventListener('click', async function() 
             </tr>`
             document.getElementById('tableContainer').innerHTML = header;
                 let stockData = docSnap.data();
-                console.log(stockData)
+               localStorage.setItem('allData',JSON.stringify(stockData))
                 document.getElementById('stockName').textContent = "Stock Name: " + stockData.name;
                 document.getElementById('stockId').textContent = "Stock ID: " + stockId;
 
@@ -139,6 +142,8 @@ document.getElementById('loadStock').addEventListener('click', async function() 
             icon: 'error'
         });
     }
+    document.getElementById('dataBox').style.display='block'
+
 });
 
 document.getElementById('addProductBtn').addEventListener('click', async function() {
@@ -169,7 +174,8 @@ document.getElementById('addProductBtn').addEventListener('click', async functio
                         quantity,
                         quantity
                     ];
-
+                    await updateDoc(docRef, stockData);
+                    stockData[`CProduct${productId}`]=[]
                     await updateDoc(docRef, stockData);
 
                     Swal.fire({
@@ -321,8 +327,9 @@ document.getElementById('showBillPortal').addEventListener('click',function(){
     document.getElementById('dateTime').value=date;
 })
 document.getElementById('exitBillPortalBtn').addEventListener('click',function(){
-    document.getElementById('billModal').style.display='none';
-    document.getElementById('main').style.display='block';
+    localStorage.setItem('tempPermit',true)
+    window.location.href='admin.html'
+
 })
 
 
@@ -336,10 +343,7 @@ document.getElementById('showBillPortal').addEventListener('click', function() {
     populateProductDropdown();
 });
 
-document.getElementById('exitBillPortalBtn').addEventListener('click', function() {
-    document.getElementById('billModal').style.display = 'none';
-    document.getElementById('main').style.display = 'block';
-});
+
 
 function populateProductDropdown() {
     const stockId = localStorage.getItem('tempStockId');
@@ -356,7 +360,8 @@ function populateProductDropdown() {
                         const option = document.createElement('option');
                         option.value = `Product${i}`;
                         option.textContent = `${product[0]} - ${product[1]}`;
-                        productDropdown.appendChild(option);
+                        let left=`${product[5]}`
+                        if(left>0){productDropdown.appendChild(option);}
                     } else {
                         break;
                     }
@@ -387,7 +392,9 @@ document.getElementById('addToCartBtn').addEventListener('click', function() {
     } else {
         alert("Please select a product first");
     }
+    populateProductDropdown();
 });
+let cartItemId=[];
 function addProductToCart(productId, productData) {
     var totalPrice=document.getElementById('totalPrice').innerText
     const cartList = document.getElementById('cartList');
@@ -395,32 +402,125 @@ function addProductToCart(productId, productData) {
     cartItem.className = 'list-group-item';
     cartItem.textContent = `${productData[0]} - ${productData[1]} - RS.${productData[3]} `;
     cartList.appendChild(cartItem);
+    cartItemId.push(productId)
     document.getElementById('totalPrice').innerText=parseInt(parseInt(totalPrice)+parseInt(productData[3]))
+
 }
 
 document.getElementById('billHeader').style.display = 'none'
 document.getElementById('billFooter').style.display = 'none'
 
 
-document.getElementById('submitBill').addEventListener('click',function(){
-    if(document.getElementById('customerName').value==''){
+document.getElementById('submitBill').addEventListener('click', async function() {
+    const customerName = document.getElementById('customerName').value;
+    if (customerName === '') {
         Swal.fire({
             title: 'Failed',
-            text: 'Customer Name can not be empty',
+            text: 'Customer Name cannot be empty',
             icon: 'error'
         });
-    }else{
-        document.getElementById('customerName').disabled = true
-        document.getElementById('portalElements').style.display = 'none'
-        document.getElementById('exitBillPortalBtn').style.display = 'none'
-        document.getElementById('submitBill').style.display = 'none'
-        document.getElementById('navbar').style.display = 'none'
-        document.getElementById('billHeader').style.display = 'flex'
-        document.getElementById('billFooter').style.display = 'flex'
-        print()
-        document.getElementById('exitBillPortalBtn').style.display = 'block'
-        // document.getElementById('billHeader').style.display = 'none'
-        // document.getElementById('billFooter').style.display = 'none'
-
+        return;
     }
+
+    const stockId = localStorage.getItem('tempStockId');
+    if (!stockId) {
+        Swal.fire({
+            title: 'Error',
+            text: 'No stock ID found in local storage',
+            icon: 'error'
+        });
+        return;
+    }
+
+    const docRef = doc(db, "stocks", stockId);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+        Swal.fire({
+            title: 'Error',
+            text: 'No such document!',
+            icon: 'error'
+        });
+        return;
+    }
+
+    let stockData = docSnap.data();
+    let promises = [];
+
+    cartItemId.forEach(productId => {
+        let productData = stockData[productId];
+        if (productData) {
+            let itemName = productData[0];
+            let itemDescription = productData[1];
+            let retailPrice = productData[2];
+            let salePrice = productData[3];
+            let quantity = productData[4];
+            let itemQuantity = productData[5];
+
+            let newQuantity = parseInt(itemQuantity) - 1;
+
+            stockData[productId] = [
+                itemName,
+                itemDescription,
+                retailPrice,
+                salePrice,
+                quantity,
+                newQuantity
+            ];
+
+            promises.push(updateDoc(docRef, {
+                [productId]: stockData[productId]
+            }));
+        }
+    });
+    for(let v=0;v<cartItemId.length;v++){
+
+        let temparr=stockData[`C${cartItemId[v]}`]
+            temparr.push(customerName) 
+            stockData[`C${cartItemId[v]}`]=temparr
+            await updateDoc(docRef, stockData);
+    }
+        
+
+
+
+
+
+        document.getElementById('customerName').disabled = true;
+        document.getElementById('portalElements').style.display = 'none';
+        document.getElementById('exitBillPortalBtn').style.display = 'none';
+        document.getElementById('submitBill').style.display = 'none';
+        document.getElementById('navbar').style.display = 'none';
+        document.getElementById('billHeader').style.display = 'flex';
+        document.getElementById('billFooter').style.display = 'flex';
+        print();
+        document.getElementById('exitBillPortalBtn').style.display = 'block';
+        document.getElementById('billHeader').style.display = 'none';
+        document.getElementById('billFooter').style.display = 'none';
+});
+
+
+document.getElementById('exitBillPortalBtn').addEventListener('click', function() {
+    document.getElementById('customerName').disabled = false;
+    document.getElementById('portalElements').style.display = 'block';
+    document.getElementById('submitBill').style.display = 'default';
+    document.getElementById('navbar').style.display = 'default';
+    document.getElementById('cartList').innerHTML = '';
+    document.getElementById('customerName').value = '';
+    document.getElementById('totalPrice').innerText = '0';
+    cartItemId = '';
+});
+
+document.getElementById('logout').addEventListener('click', function() {
+    localStorage.removeItem('allData')
+Swal.fire({
+        title: 'Loging Out',
+        text: 'Thank you for using the site.',
+        icon: 'success'
+    });
+    var tempp=0;
+    setInterval(function () {tempp++
+        if(tempp==5){window.location.href='index.html'}
+    }, 1000);
 })
+
+
