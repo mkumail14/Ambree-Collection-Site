@@ -79,6 +79,7 @@
         </div>
 
         <br>
+        <h6 style="opacity: 50%;" id="reportText"></h6>
         <div style="border:2px solid black; width: 90%; padding: 20px; width: fit-content;"  id="dataBox">
             <h3>All Data</h3>
             <p id="stockName"><b>Stock Name :</b></p>
@@ -89,15 +90,41 @@
             <button type="button" class="btn btn-primary" id="addProductBoxBtn">Add Product</button>
             <button type="button" class="btn btn-primary" id="showBillPortal">Bill</button>
 
+            <br><br>
             <h3>Sales-Customer Data</h3>
             <table id="customerTableContainer"></table>
             <br><br>
             <div style="border: 2px red solid;" id="currentSalesBox">
             <h2>Current Sales :</h2><p id="currentSales"></p>
             </div>
+            <br><br>
 
             <button type="button" style="background-color: red;" class="btn btn-primary" id="generateFinalReportBtn">Generate Final Report</button>
+        <div id="finalReport">
+            <h3>To Return</h3><br>
+            <table style="border: 5px solid black;" id="returnTableContainer"></table>
+            <br><br>
+            <h3>Sold</h3><br>
+            <table style="border: 5px solid black;" id="soldTableContainer"></table>
+            <table style="border: 5px solid black;" id="specialsoldTableContainer"></table>
+            <br><br>
+            <h2 id="totalCash"></h2>
+            <div id="forYou">
+            <h2 id="toPay"></h2>
+            <h2 id="totalProfit"></h2>
+            </div>
+            <br>
+            <center>
+            <h6 style="opacity: 50%;" id="reportText"></h6>
+            </center>
+            <br>
+<button class="btn btn-primary" id="printforme" onclick="printforme()">Print for Me</button>
+<button class="btn btn-primary" id="gotoHome" onclick="gotoHome()" >Home</button>
+<button class="btn btn-primary" id="printforshop" onclick="printforshop()">Print for Shop</button>
+
         </div>
+        </div>
+        
     </center>
     </main>
     <!-- Add Stock Modal -->

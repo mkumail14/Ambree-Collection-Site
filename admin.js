@@ -23,6 +23,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 document.getElementById('dataBox').style.display='none'
+document.getElementById('finalReport').style.display='none'
+document.getElementById('specialsoldTableContainer').style.display='none'
 
 const addStockBtn = document.getElementById('addNewStock');
 addStockBtn.addEventListener('click', function() {
@@ -92,7 +94,7 @@ document.getElementById('loadStock').addEventListener('click', async function() 
             </tr>`
             document.getElementById('tableContainer').innerHTML = header;
                 let stockData = docSnap.data();
-               localStorage.setItem('allData',JSON.stringify(stockData))
+            //    localStorage.setItem('allData',JSON.stringify(stockData))
                 document.getElementById('stockName').textContent = "Stock Name: " + stockData.name;
                 document.getElementById('stockId').textContent = "Stock ID: " + stockId;
 
@@ -140,7 +142,6 @@ document.getElementById('loadStock').addEventListener('click', async function() 
                     }
                     document.getElementById('currentSales').innerText=`Rs.${currentSales}`
                     
-                    document.getElementById('dataBox').style.display='block'
 
                 }
                 attachEditButtonsEvent();
@@ -166,6 +167,7 @@ document.getElementById('loadStock').addEventListener('click', async function() 
         });
     }
 
+    document.getElementById('dataBox').style.display='block'
 
 });
 
@@ -550,7 +552,7 @@ Swal.fire({
 
 
 
-document.getElementById('generateFinalReportBtn').addEventListener('click', function() {
+document.getElementById('generateFinalReportBtn').addEventListener('click',async function() {
     document.getElementById('navbar').style.display='none'
     document.getElementById('unHideBtn').style.display='none'
     document.getElementById('addProductBoxBtn').style.display='none'
@@ -558,8 +560,179 @@ document.getElementById('generateFinalReportBtn').addEventListener('click', func
     document.getElementById('currentSalesBox').style.display='none'
     document.getElementById('generateFinalReportBtn').style.display='none'
 
+    let returnTableContainerHeader=`
+    <tr style="border: 3px black solid;">
+    <td class="scell">Product No</td>
+    <td class="scell">Product Name</td>
+    <td class="scell">Product Description</td>
+    <td class="scell">Total Item</td>
+    <td class="scell">Item Left</td>
+    </tr>
+    `
+    document.getElementById('returnTableContainer').innerHTML=returnTableContainerHeader;
+
+    const stockId = localStorage.getItem('tempStockId');
+    const docRef = doc(db, "stocks", stockId);
+    const docSnap = await getDoc(docRef);
+    let stockData = docSnap.data();
+    for (var i = 1; i < 1000; i++) {
+        if (stockData[`Product${i}`] ) {
+                    var temp = stockData[`Product${i}`];
+                    if(temp[5]>0){
+                        let returnTableCell=`
+                        <tr>
+                        <td class="scell">${i}</td>
+                        <td class="scell">${temp[0]}</td>
+                        <td class="scell">${temp[1]}</td>
+                        <td class="scell">${temp[4]}</td>
+                        <td class="scell">${temp[5]}</td>
+                        </tr>
+                        `
+        document.getElementById('returnTableContainer').innerHTML+=returnTableCell;
+
+                    }
+        }}
+
+
+
+        let soldTableContainerHeader=`
+    <tr style="border: 3px black solid;">
+    <td class="scell">Product No</td>
+    <td class="scell">Product Name</td>
+    <td class="scell">Product Description</td>
+    <td class="scell">Item Sold</td>
+    <td class="scell">Profit Per</td>
+    <td class="scell">Total Profit</td>
+    </tr>
+    `
+    document.getElementById('soldTableContainer').innerHTML=soldTableContainerHeader;
+
+
+
+    let specialsoldTableContainerHeader=`
+    <tr style="border: 3px black solid;">
+    <td class="scell">Product No</td>
+    <td class="scell">Product Name</td>
+    <td class="scell">Product Description</td>
+    <td class="scell">Total Item</td>
+    <td class="scell">Item Sold</td>
+    <td class="scell">Item Price</td>
+    </tr>
+    `
+    document.getElementById('specialsoldTableContainer').innerHTML=specialsoldTableContainerHeader;
+
+   let totalCash=0
+   let toPay=0
+   let finalProfit=0
+    for (var i = 1; i < 1000; i++) {
+        if (stockData[`Product${i}`] ) {
+                    var temp = stockData[`Product${i}`];
+                    if(temp[5]!=temp[4]){
+                        let soldTableCell=`
+                        <tr>
+                        <td class="scell">${i}</td>
+                        <td class="scell">${temp[0]}</td>
+                        <td class="scell">${temp[1]}</td>
+                        <td class="scell">${temp[4]-temp[5]}</td>
+                        <td class="scell">${temp[3]-temp[2]}</td>
+                        <td class="scell">${(temp[3]-temp[2])*(temp[4]-temp[5])}</td>
+                        </tr>
+                        `
+
+                        toPay+=(temp[4]-temp[5])*temp[2]
+                        totalCash+=(temp[4]-temp[5])*temp[3]
+                        finalProfit=totalCash-toPay
+                        
+
+        document.getElementById('soldTableContainer').innerHTML+=soldTableCell;
+
+                    }
+        }}
+        document.getElementById('totalCash').innerHTML=`Total Cash=Rs.${totalCash}`
+        document.getElementById('toPay').innerHTML=`Total  to Pay=Rs.${toPay}`
+        document.getElementById('totalProfit').innerHTML=`Total Profit=Rs.${finalProfit}`
+        document.getElementById('finalReport').style.display='block'
+        for (var i = 1; i < 1000; i++) {
+        if (stockData[`Product${i}`] ) {
+                    var temp = stockData[`Product${i}`];
+                    if(temp[5]!=temp[4]){
+                        let speacialsoldTableCell=`
+                        <tr>
+                        <td class="scell">${i}</td>
+                        <td class="scell">${temp[0]}</td>
+                        <td class="scell">${temp[1]}</td>
+                        <td class="scell">${temp[4]}</td>
+                        <td class="scell">${temp[4]-temp[5]}</td>
+                        <td class="scell">${temp[2]}</td>
+                        </tr>
+                        `
+        document.getElementById('specialsoldTableContainer').innerHTML+=speacialsoldTableCell;
+
+                    }
+        }}
+        for (var i = 1; i < 1000; i++) {
+            if (stockData[`Product${i}`] ) {
+                        var temp = stockData[`Product${i}`];
+                        if(temp[5]!=temp[4]){
+                            let soldTableCell=`
+                            <tr>
+                            <td class="scell">${i}</td>
+                            <td class="scell">${temp[0]}</td>
+                            <td class="scell">${temp[1]}</td>
+                            <td class="scell">${temp[4]-temp[5]}</td>
+                            <td class="scell">${temp[3]-temp[2]}</td>
+                            <td class="scell">${(temp[3]-temp[2])*(temp[4]-temp[5])}</td>
+                            </tr>
+                            `
+    
+                            toPay+=(temp[4]-temp[5])*temp[2]
+                            totalCash+=(temp[4]-temp[5])*temp[3]
+                            finalProfit=totalCash-toPay
+                            
+    
+            document.getElementById('soldTableContainer').innerHTML+=soldTableCell;
+    
+                        }
+            }}
 
 
 })
+
+
+function printforme(){
+    document.getElementById('printforme').style.display='none'
+    document.getElementById('printforshop').style.display='none'
+    document.getElementById('gotoHome').style.display='none'
+    document.getElementById('reportText').innerText='AMBREEN COLLECTION-BY MKA-SALES BILL'
+    print()
+    document.getElementById('reportText').innerText=''
+    document.getElementById('printforme').style.display='inline'
+    document.getElementById('printforshop').style.display='inline'
+    document.getElementById('gotoHome').style.display='inline'
+}
+
+function gotoHome(){
+    localStorage.setItem('tempPermit',true)
+    Window.location.href='admin.html'
+}
+
+function printforshop(){
+    document.getElementById('soldTableContainer').style.display='none'
+    document.getElementById('specialsoldTableContainer').style.display='block'
+    document.getElementById('printforme').style.display='none'
+    document.getElementById('printforshop').style.display='none'
+    document.getElementById('gotoHome').style.display='none'
+    document.getElementById('reportText').innerText='AMBREEN COLLECTION-BY MKA-SALES BILL FOR SHOP'
+    print()
+    document.getElementById('reportText').innerText=''
+    document.getElementById('soldTableContainer').style.display='block'
+    document.getElementById('specialsoldTableContainer').style.display='none'
+    document.getElementById('printforme').style.display='inline'
+    document.getElementById('printforshop').style.display='inline'
+    document.getElementById('gotoHome').style.display='inline'
+}
+window.printforme=printforme;
+window.printforshop=printforshop;
+
 
 
