@@ -1,11 +1,11 @@
-if(localStorage.getItem('tempPermit')=='true'){
-    localStorage.removeItem('tempPermit')
-    document.getElementById('loadStock').click();
-}else if(!localStorage.getItem('adminPermit')){
-window.location.href='index.html'
-}else{
-    localStorage.removeItem('adminPermit')
-}
+// if(localStorage.getItem('tempPermit')=='true'){
+//     localStorage.removeItem('tempPermit')
+//     document.getElementById('loadStock').click();
+// }else if(!localStorage.getItem('adminPermit')){
+// window.location.href='index.html'
+// }else{
+//     localStorage.removeItem('adminPermit')
+// }
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getFirestore, collection, addDoc, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
@@ -71,7 +71,7 @@ document.getElementById('enterStock').addEventListener('click', async function()
         });
     }
 });
-
+var currentSales=0;
 document.getElementById('loadStock').addEventListener('click', async function() {
     const stockId = localStorage.getItem('tempStockId');
     if (stockId) {
@@ -109,14 +109,37 @@ document.getElementById('loadStock').addEventListener('click', async function() 
                             <td id='hiddenCell2' class="datacell">${temp[4]}</td>
                             <td class="datacell">${temp[5]}</td>
                             <td class="datacell">
-                                <button class="btn btn-sm btn-warning editProductBtn" data-product-id="${i}">Edit</button>
+                                <button class="btn btn-sm btn-warning editProductBtn" data-product-id="${i}">Edit</button>  
                             </td>
                         </tr>
                         `;
+                        currentSales+=parseInt((temp[4]-temp[5])*temp[3])
+
                         document.getElementById('tableContainer').innerHTML += tmp;
+                        var header1=`
+                        <tr style="border: 3px black solid;">
+                        <td class="scell">Customer Name - Date</td>
+                        <td class="scell">Product ID</td>
+                        </tr>`
+                    document.getElementById('customerTableContainer').innerHTML = header1;
+                    for (var t = 1; t < 1000; t++) {
+                        if (stockData[`CProduct${t}`]) {
+                            var temppp = stockData[`CProduct${t}`];
+                            for(let a=0;temppp.length>a;a++){
+                                 let cell=  `<tr">
+                                 <td class="datacell">${temppp[a]}</td>
+                                 <td class="datacell">Product${t}</td>
+                                 </tr>`
+                     document.getElementById('customerTableContainer').innerHTML += cell;
+ 
+                            }
+                        }
+                    }
                     } else {
                         break;
                     }
+                    document.getElementById('currentSales').innerText=`Rs.${currentSales}`
+                    
                     document.getElementById('dataBox').style.display='block'
 
                 }
@@ -142,7 +165,7 @@ document.getElementById('loadStock').addEventListener('click', async function() 
             icon: 'error'
         });
     }
-    document.getElementById('dataBox').style.display='block'
+
 
 });
 
@@ -232,7 +255,7 @@ function attachEditButtonsEvent() {
         });
     });
 }
-
+let tempLeft;
 async function openEditModal(productId) {
     const stockId = localStorage.getItem('tempStockId');
     const docRef = doc(db, "stocks", stockId);
@@ -246,7 +269,7 @@ async function openEditModal(productId) {
         document.getElementById('editRetailPrice').value = productData[2];
         document.getElementById('editSalePrice').value = productData[3];
         document.getElementById('editQuantity').value = productData[4];
-
+        tempLeft=productData[5];
         const editProductModal = new bootstrap.Modal(document.getElementById('editProductModal'));
         editProductModal.show();
 
@@ -270,7 +293,7 @@ async function saveProductChanges(productId) {
             document.getElementById('editRetailPrice').value,
             document.getElementById('editSalePrice').value,
             document.getElementById('editQuantity').value,
-            document.getElementById('editQuantity').value  // Assuming Product Left is the same as Quantity after edit
+            tempLeft
         ];
 
         try {
@@ -523,6 +546,20 @@ Swal.fire({
     setInterval(function () {tempp++
         if(tempp==5){window.location.href='index.html'}
     }, 1000);
+})
+
+
+
+document.getElementById('generateFinalReportBtn').addEventListener('click', function() {
+    document.getElementById('navbar').style.display='none'
+    document.getElementById('unHideBtn').style.display='none'
+    document.getElementById('addProductBoxBtn').style.display='none'
+    document.getElementById('showBillPortal').style.display='none'
+    document.getElementById('currentSalesBox').style.display='none'
+    document.getElementById('generateFinalReportBtn').style.display='none'
+
+
+
 })
 
 
