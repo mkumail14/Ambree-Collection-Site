@@ -1,14 +1,16 @@
-// if(localStorage.getItem('tempPermit')=='true'){
-//     localStorage.removeItem('tempPermit')
-//     document.getElementById('loadStock').click();
-// }else if(!localStorage.getItem('adminPermit')){
-// window.location.href='index.html'
-// }else{
-//     localStorage.removeItem('adminPermit')
-// }
+if(localStorage.getItem('tempPermit')=='true'){
+    document.getElementById('loadStock').click();
+    localStorage.removeItem('tempPermit')
+}else if(!localStorage.getItem('adminPermit')){
+window.location.href='index.html'
+}else{
+    localStorage.removeItem('adminPermit')
+}
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getFirestore, collection, addDoc, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+import { getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyCml__ejp5jC1QPfvRdKPKT21W0PIgomCQ",
     authDomain: "ambreen-collection-site.firebaseapp.com",
@@ -26,6 +28,24 @@ document.getElementById('dataBox').style.display='none'
 document.getElementById('finalReport').style.display='none'
 document.getElementById('specialsoldTableContainer').style.display='none'
 
+const querySnapshot = await getDocs(collection(db, "stocks"));
+querySnapshot.forEach((doc) => {
+  let stockCell=`
+  <tr>
+  <td style="border-bottom: 1px solid black; padding: 8px;">${doc.data().name}</td>
+    <td style="border-bottom: 1px solid black; padding: 8px;">${doc.id}</td>
+    <td style="border-bottom: 1px solid black; padding: 8px;"><button onClick=load('${doc.id}') style="
+    background-color: yellow; border:none; border-radius: 5px;
+">Load</button></td>
+  </tr>
+  `
+  document.getElementById('stockContainer').innerHTML+=stockCell
+});
+
+function load(id){
+    localStorage.setItem('tempStockId',id)
+    document.getElementById('loadStock').click();
+}
 const addStockBtn = document.getElementById('addNewStock');
 addStockBtn.addEventListener('click', function() {
     const addStockModal = new bootstrap.Modal(document.getElementById('addStockModal'));
@@ -58,6 +78,7 @@ document.getElementById('enterStock').addEventListener('click', async function()
             document.getElementById('inputStockName').value = '';
             const addStockModal = bootstrap.Modal.getInstance(document.getElementById('addStockModal'));
             addStockModal.hide();
+            loadHome()
         } catch (error) {
             Swal.fire({
                 title: 'Error',
@@ -75,6 +96,7 @@ document.getElementById('enterStock').addEventListener('click', async function()
 });
 var currentSales=0;
 document.getElementById('loadStock').addEventListener('click', async function() {
+    document.getElementById('home').style.display='none'
     const stockId = localStorage.getItem('tempStockId');
     if (stockId) {
         try {
@@ -355,6 +377,7 @@ document.getElementById('exitBillPortalBtn').addEventListener('click',function()
     localStorage.setItem('tempPermit',true)
     window.location.href='admin.html'
 
+
 })
 
 
@@ -432,8 +455,7 @@ function addProductToCart(productId, productData) {
 
 }
 
-document.getElementById('billHeader').style.display = 'none'
-document.getElementById('billFooter').style.display = 'none'
+
 
 
 document.getElementById('submitBill').addEventListener('click', async function() {
@@ -517,12 +539,8 @@ document.getElementById('submitBill').addEventListener('click', async function()
         document.getElementById('exitBillPortalBtn').style.display = 'none';
         document.getElementById('submitBill').style.display = 'none';
         document.getElementById('navbar').style.display = 'none';
-        document.getElementById('billHeader').style.display = 'flex';
-        document.getElementById('billFooter').style.display = 'flex';
         print();
         document.getElementById('exitBillPortalBtn').style.display = 'block';
-        document.getElementById('billHeader').style.display = 'none';
-        document.getElementById('billFooter').style.display = 'none';
 });
 
 
@@ -703,9 +721,7 @@ function printforme(){
     document.getElementById('printforme').style.display='none'
     document.getElementById('printforshop').style.display='none'
     document.getElementById('gotoHome').style.display='none'
-    document.getElementById('reportText').innerText='AMBREEN COLLECTION-BY MKA-SALES BILL'
     print()
-    document.getElementById('reportText').innerText=''
     document.getElementById('printforme').style.display='inline'
     document.getElementById('printforshop').style.display='inline'
     document.getElementById('gotoHome').style.display='inline'
@@ -713,7 +729,7 @@ function printforme(){
 
 function gotoHome(){
     localStorage.setItem('tempPermit',true)
-    Window.location.href='admin.html'
+    window.location.href='admin.html'
 }
 
 function printforshop(){
@@ -722,17 +738,25 @@ function printforshop(){
     document.getElementById('printforme').style.display='none'
     document.getElementById('printforshop').style.display='none'
     document.getElementById('gotoHome').style.display='none'
-    document.getElementById('reportText').innerText='AMBREEN COLLECTION-BY MKA-SALES BILL FOR SHOP'
+    document.getElementById('forYou').style.display='none'
     print()
-    document.getElementById('reportText').innerText=''
     document.getElementById('soldTableContainer').style.display='block'
     document.getElementById('specialsoldTableContainer').style.display='none'
     document.getElementById('printforme').style.display='inline'
+    document.getElementById('forYou').style.display='inline'
     document.getElementById('printforshop').style.display='inline'
     document.getElementById('gotoHome').style.display='inline'
 }
+
+
+function loadHome(){
+    localStorage.setItem('tempPermit',true)
+    window.location.href='admin.html'
+
+}
+
+
 window.printforme=printforme;
 window.printforshop=printforshop;
-
-
-
+window.load=load;
+window.loadHome=loadHome;
