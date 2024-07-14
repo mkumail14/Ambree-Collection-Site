@@ -92,7 +92,6 @@ var currentSales=0;
 
 document.getElementById('loadStock').addEventListener('click', async function() {
     let productAvailibility;
-    let CproductAvailibility;
 
     document.getElementById('home').style.display='none'
     const stockId = localStorage.getItem('tempStockId');
@@ -150,7 +149,6 @@ document.getElementById('loadStock').addEventListener('click', async function() 
                     document.getElementById('customerTableContainer').innerHTML = header1;
                     for (var t = 1; t < 1000; t++) {
                         if (stockData[`CProduct${t}`]) {
-                            CproductAvailibility=true;
                             var temppp = stockData[`CProduct${t}`];
                             for(let a=0;temppp.length>a;a++){
                                  let cell=  `<tr">
@@ -162,33 +160,19 @@ document.getElementById('loadStock').addEventListener('click', async function() 
                             }
                         }
                     }
-                    if(CproductAvailibility!=true){
-                        let cell=`<tr>
-                        <td class="datacell" colspan="2" >No Data Availible</td>
-                        </tr>`
-                        document.getElementById('customerTableContainer').innerHTML = cell;
-
                     }
-                    }else{
-                        if(CproductAvailibility!=true){
-                            let cell=`<tr>
-                            <td class="datacell" colspan="2" >No Data Availible</td>
-                            </tr>`
-                            document.getElementById('customerTableContainer').innerHTML = cell;
-    
-                        }
-                        if(productAvailibility!=true){
-                            let cell=`<tr>
-                            <td class="datacell" colspan="8" >No Data Availible</td>
-                            </tr>`
-                            document.getElementById('tableContainer').innerHTML = cell;
-    
-                        }
-                    } 
-                    document.getElementById('currentSales').innerText=`Rs.${currentSales}`
-                    
+                   
 
                 }
+                if(productAvailibility!=true){
+                    let cell=`<tr>
+                    <td class="datacell" colspan="8" >No Data Availible</td>
+                    </tr>`
+                    document.getElementById('tableContainer').innerHTML = cell;
+
+                }
+                document.getElementById('currentSales').innerText=`Rs.${currentSales}`
+                
                 attachEditButtonsEvent();
             } else {
                 Swal.fire({
@@ -600,7 +584,7 @@ Swal.fire({
 
 document.getElementById('generateFinalReportBtn').addEventListener('click',async function() {
     document.getElementById('navbar').style.display='none'
-    document.getElementById('unHideBtn').style.display='none'
+    document.getElementById('toggleColumnsBtn').style.display='none'
     document.getElementById('addProductBoxBtn').style.display='none'
     document.getElementById('showBillPortal').style.display='none'
     document.getElementById('currentSalesBox').style.display='none'
