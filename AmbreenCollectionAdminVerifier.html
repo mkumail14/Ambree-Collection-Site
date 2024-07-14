@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Your PIN</title>
+    <style>
+        * {
+            outline: none;
+        }
+        html, body {
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            background-color: #e7f7e7;
+            cursor: url(http://k003.kiwi6.com/hotlink/vp054ir5gt/c1.png) 32 32, auto;
+            cursor: -webkit-image-set(url(http://k003.kiwi6.com/hotlink/vp054ir5gt/c1.png) 1x, url(http://k003.kiwi6.com/hotlink/z6fy599487/c2.png) 2x) 32 32, auto;
+        }
+        body:active {
+            cursor: url(http://k003.kiwi6.com/hotlink/3p6w4icbzt/c1a.png) 32 32, auto;
+            cursor: -webkit-image-set(url(http://k003.kiwi6.com/hotlink/3p6w4icbzt/c1a.png) 1x, url(http://k003.kiwi6.com/hotlink/6ma7828al1/c2a.png) 2x) 32 32, auto;
+        }
+        #app-cover {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            width: 350px;
+            margin: 0 auto;
+            margin-top: -40px;
+        }
+        #cover {
+            position: relative;
+            height: 80px;
+            background-color: #25bf2b;
+            border-radius: 120px;
+            box-shadow: 0 10px 40px #208a23;
+            overflow: hidden;
+        }
+        #key-icon, #key-cover, #key-dots, #show-key {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+        }
+        #key-icon {
+            display: block;
+            left: 0;
+            width: 23px;
+            height: 26px;
+            color: #fff;
+            font-size: 26px;
+            text-align: center;
+            line-height: 1;
+            padding: 27px 28.63px;
+        }
+        #key-cover, #key-dots {
+            left: 80px;
+            right: 80px;
+        }
+        #key-cover {
+            z-index: 2;
+        }
+        #key {
+            position: relative;
+            display: block;
+            left: 6px;
+            top: 1px;
+            height: 80px;
+            font-size: 80px;
+            color: #fff;
+            padding: 0;
+            border: 0;
+            line-height: 1;
+            letter-spacing: 12px;
+            background-color: transparent;
+        }
+        #key-dots {
+            overflow: hidden;
+            z-index: 1;
+        }
+        #dots {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 20px;
+            height: 80px;
+        }
+        #key, #dots {
+            width: 160px;
+            margin: 0 auto;
+        }
+        .dot {
+            position: relative;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            float: left;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            line-height: 1.7;
+            margin-right: 20px;
+            margin-top: -10px;
+            background-color: #1b841f;
+            border-radius: 50%;
+            transform: scale(1);
+            transition: 0.2s ease transform;
+            overflow: hidden;
+        }
+        .dot:last-child {
+            margin-right: 0;
+        }
+        .dot span {
+            display: block;
+            opacity: 0;
+            transition: 0.4s ease opacity;
+        }
+        #key-dots.active {
+            z-index: 3;
+        }
+        #key-dots.active .dot {
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            font-family: Nunito, Arial, Helvetica, sans-serif;
+            text-align: center;
+            background-color: #1b841f;
+            transform: scale(1.7);
+        }
+        #key-dots .dot.white {
+            color: #1b841f;
+            background-color: #fff;
+        }
+        #key-dots .dot.white span.show {
+            opacity: 1;
+        }
+        #show-key {
+            right: 0;
+        }
+        #show-key i.fas {
+            display: block;
+            width: 26px;
+            height: 27px;
+            color: #fff;
+            font-size: 23px;
+            padding: 28.5px 27.07px;
+        }
+        h1 {
+            text-align: center;
+            color: #25bf2b;
+            font-family: 'Nunito', sans-serif;
+            font-size: 24px;
+            margin-bottom: 50px;
+        }
+        h6 {
+            text-align: center;
+            color: #25bf2b;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hey Ambreen! Enter Your PIN</h1>
+    <div id="app-cover">
+        <div id="cover">
+            <i class="fas fa-lock" id="key-icon"></i>
+            <form id="key-cover">
+                <input type="password" id="key" maxlength="4">
+            </form>
+            <div id="key-dots">
+                <div id="dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            <div id="show-key">
+                <i class="fas fa-eye-slash"></i>
+            </div>
+        </div>
+    </div>
+    <h6>Ambreen Collection - MKA Developers</h6>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            var keyInput = $("#key"),
+                keyArr = [],
+                key,
+                keyLength,
+                i,
+                showKey = $("#show-key"),
+                keyDots = $("#key-dots"),
+                dot = $(".dot"),
+                viewPass = false;
+
+            function _updateKey() {
+                keyArr = [];
+                key = keyInput.val();
+                keyLength = key.length;
+
+                if (keyLength > 0) {
+                    for (i = 0; i < keyLength; i++) {
+                        keyArr[i] = key[i];
+                    }
+                }
+
+                if (keyArr.length == 4) {
+                    dot.addClass("white");
+                    if (key === "1967") {
+                        localStorage.setItem('adminPermit',true)
+                        window.location.href="admin.html"
+                    }else{
+                        window.location.href="AmbreenCollectionAdminVerifier.html"
+                    }
+                } else {
+                    dot.removeClass("white");
+                }
+            }
+
+            function _showKey() {
+                if (keyArr.length == 4) {
+                    if (!viewPass) {
+                        $(this).find("i").attr("class", "fas fa-eye");
+                        viewPass = true;
+                    } else {
+                        $(this).find("i").attr("class", "fas fa-eye-slash");
+                        viewPass = false;
+                    }
+
+                    dot.addClass("white");
+
+                    for (i = 0; i < 4; i++) {
+                        dot.eq(i).html("<span>" + keyArr[i] + "</span>");
+                    }
+
+                    keyDots.toggleClass("active");
+
+                    if (!keyDots.hasClass("active")) {
+                        dot.find("span").text("");
+                    }
+
+                    setTimeout(function () {
+                        dot.find("span").toggleClass("show");
+                    }, 100);
+                }
+            }
+
+            keyInput.on("keyup", _updateKey);
+            showKey.on("click", _showKey);
+        });
+    </script>
+</body>
+</html>

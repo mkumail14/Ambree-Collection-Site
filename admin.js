@@ -9,7 +9,7 @@ window.location.href='index.html'
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getFirestore, collection, addDoc, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-import { getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+import { getDocs ,deleteDoc,deleteField } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCml__ejp5jC1QPfvRdKPKT21W0PIgomCQ",
@@ -36,7 +36,9 @@ querySnapshot.forEach((doc) => {
     <td style="border-bottom: 1px solid black; padding: 8px;">${doc.id}</td>
     <td style="border-bottom: 1px solid black; padding: 8px;"><button onClick=load('${doc.id}') style="
     background-color: yellow; border:none; border-radius: 5px;
-">Load</button></td>
+">Load</button> <button onClick=del('${doc.id}') style="
+    background-color: red; border:none; border-radius: 5px;
+">Delete</button></td>
   </tr>
   `
   document.getElementById('stockContainer').innerHTML+=stockCell
@@ -95,7 +97,11 @@ document.getElementById('enterStock').addEventListener('click', async function()
     }
 });
 var currentSales=0;
+
 document.getElementById('loadStock').addEventListener('click', async function() {
+    let productAvailibility;
+    let CproductAvailibility;
+
     document.getElementById('home').style.display='none'
     const stockId = localStorage.getItem('tempStockId');
     if (stockId) {
@@ -122,6 +128,7 @@ document.getElementById('loadStock').addEventListener('click', async function() 
 
                 for (var i = 1; i < 1000; i++) {
                     if (stockData[`Product${i}`]) {
+                        productAvailibility=true;
                         var temp = stockData[`Product${i}`];
                         var tmp = `
                         <tr>
@@ -133,10 +140,13 @@ document.getElementById('loadStock').addEventListener('click', async function() 
                             <td id='hiddenCell2' class="datacell">${temp[4]}</td>
                             <td class="datacell">${temp[5]}</td>
                             <td class="datacell">
-                                <button class="btn btn-sm btn-warning editProductBtn" data-product-id="${i}">Edit</button>  
+                                <button class="btn btn-sm btn-warning editProductBtn" data-product-id="${i}">Edit</button>
+                                <button onClick=delPrd('Product${i}') style="
+    background-color: red; border:none; border-radius: 5px;
+">Delete</button>  
                             </td>
                         </tr>
-                        `;
+                     `;
                         currentSales+=parseInt((temp[4]-temp[5])*temp[3])
 
                         document.getElementById('tableContainer').innerHTML += tmp;
@@ -148,6 +158,7 @@ document.getElementById('loadStock').addEventListener('click', async function() 
                     document.getElementById('customerTableContainer').innerHTML = header1;
                     for (var t = 1; t < 1000; t++) {
                         if (stockData[`CProduct${t}`]) {
+                            CproductAvailibility=true;
                             var temppp = stockData[`CProduct${t}`];
                             for(let a=0;temppp.length>a;a++){
                                  let cell=  `<tr">
@@ -159,9 +170,29 @@ document.getElementById('loadStock').addEventListener('click', async function() 
                             }
                         }
                     }
-                    } else {
-                        break;
+                    if(CproductAvailibility!=true){
+                        let cell=`<tr>
+                        <td class="datacell" colspan="2" >No Data Availible</td>
+                        </tr>`
+                        document.getElementById('customerTableContainer').innerHTML = cell;
+
                     }
+                    }else{
+                        if(CproductAvailibility!=true){
+                            let cell=`<tr>
+                            <td class="datacell" colspan="2" >No Data Availible</td>
+                            </tr>`
+                            document.getElementById('customerTableContainer').innerHTML = cell;
+    
+                        }
+                        if(productAvailibility!=true){
+                            let cell=`<tr>
+                            <td class="datacell" colspan="8" >No Data Availible</td>
+                            </tr>`
+                            document.getElementById('tableContainer').innerHTML = cell;
+    
+                        }
+                    } 
                     document.getElementById('currentSales').innerText=`Rs.${currentSales}`
                     
 
@@ -410,8 +441,6 @@ function populateProductDropdown() {
                         option.textContent = `${product[0]} - ${product[1]}`;
                         let left=`${product[5]}`
                         if(left>0){productDropdown.appendChild(option);}
-                    } else {
-                        break;
                     }
                 }
             }
@@ -564,7 +593,7 @@ Swal.fire({
     });
     var tempp=0;
     setInterval(function () {tempp++
-        if(tempp==5){window.location.href='index.html'}
+        if(tempp==5){window.location.href='AmbreenCollectionAdminVerifier.html'}
     }, 1000);
 })
 
@@ -756,7 +785,41 @@ function loadHome(){
 }
 
 
+async function del(id){
+    let idd=prompt('Enter ID of the stock you want to delete.')
+    if(idd==id){
+    await deleteDoc(doc(db, "stocks", id));
+    loadHome()
+    }else{
+        Swal.fire({
+            title: 'Fail',
+            text: 'You have entered wrong ID',
+            icon: 'error'
+        });
+    }
+}
+
+async function delPrd(prd) {
+    console.log("Deleting " + prd + " at " + localStorage.getItem('tempStockId'));
+    const cityRef = doc(db, 'stocks', localStorage.getItem('tempStockId'));
+    await updateDoc(cityRef, {
+        [prd]: deleteField()
+    });
+    await updateDoc(cityRef, {
+        ['C'+prd]: deleteField()
+    });
+    document.getElementById('loadStock').click();
+    Swal.fire({
+        title: 'Success',
+        text: 'Product Deleted Succesfully ',
+        icon: 'success'
+    });
+}
+
+
 window.printforme=printforme;
 window.printforshop=printforshop;
 window.load=load;
 window.loadHome=loadHome;
+window.del=del
+window.delPrd=delPrd
