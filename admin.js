@@ -1,12 +1,3 @@
-if(localStorage.getItem('tempPermit')=='true'){
-    document.getElementById('loadStock').click();
-    localStorage.removeItem('tempPermit')
-}else if(!localStorage.getItem('adminPermit')){
-window.location.href='index.html'
-}else{
-    localStorage.removeItem('adminPermit')
-}
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getFirestore, collection, addDoc, getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 import { getDocs ,deleteDoc,deleteField } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
@@ -24,6 +15,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
 document.getElementById('dataBox').style.display='none'
 document.getElementById('finalReport').style.display='none'
 document.getElementById('specialsoldTableContainer').style.display='none'
@@ -221,8 +213,32 @@ document.getElementById('loadStock').addEventListener('click', async function() 
     }
 
     document.getElementById('dataBox').style.display='block'
+    document.getElementById('toggleColumnsBtn').click()
+
 
 });
+
+
+
+
+
+
+function toggleColumns() {
+    const cells = document.querySelectorAll('#hiddenCell1, #hiddenCell2, #hiddenCell3, #hiddenCell4');
+    cells.forEach(cell => {
+        cell.style.display = cell.style.display === 'none' ? '' : 'none';
+    });
+}
+
+document.getElementById('toggleColumnsBtn').addEventListener('click', toggleColumns);
+
+
+
+
+
+
+
+
 
 document.getElementById('addProductBtn').addEventListener('click', async function() {
     const itemName = document.getElementById('itemName').value;
@@ -375,23 +391,6 @@ async function saveProductChanges(productId) {
     }
 }
         
-document.getElementById('unHideBtn').addEventListener('click',function(){
-    if (document.getElementById('hiddenCell1').style.display=='none') {
-       document.getElementById('hiddenCell1').style.display='block'
-       document.getElementById('hiddenCell2').style.display='block'
-       document.getElementById('hiddenCell3').style.display='block'
-       document.getElementById('hiddenCell4').style.display='block'
-       document.getElementById('unHideBtn').innerText="Hide"
-    } else {
-       document.getElementById('hiddenCell1').style.display='none'
-       document.getElementById('hiddenCell2').style.display='none'
-       document.getElementById('hiddenCell3').style.display='none'
-       document.getElementById('hiddenCell4').style.display='none'                
-       document.getElementById('unHideBtn').innerText="unHide"
-    }
-    
-})
-
 
 document.getElementById('addProductBoxBtn').addEventListener('click',function(){
     document.getElementById('addProductModal').style.display='block';
@@ -817,9 +816,23 @@ async function delPrd(prd) {
 }
 
 
+
+
 window.printforme=printforme;
 window.printforshop=printforshop;
 window.load=load;
 window.loadHome=loadHome;
-window.del=del
-window.delPrd=delPrd
+window.del=del;
+window.delPrd=delPrd;
+window.gotoHome=gotoHome;
+
+
+if(localStorage.getItem('tempPermit')=='true'){
+    localStorage.removeItem('tempPermit')
+document.getElementById('loadStock').click()
+
+}else if(!localStorage.getItem('adminPermit')){
+window.location.href='index.html'
+}else{
+    localStorage.removeItem('adminPermit')
+}
